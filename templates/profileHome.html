@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Профиль</title>
+<link rel="stylesheet" href={{ url_for('static', filename='css/profileHome.css') }} />
+<link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+</head>
+<body>
+<div id="title">
+	<a href="/">
+		<img id="logo" src= {{ url_for('static', filename='images/logo.png') }} />
+	</a>
+	<form>
+		<input id="searchBox" type="text" name="searchQuery">
+		<input id="searchButton" type="submit" value="Search">
+	</form>
+
+	{% if not loggedIn %}
+	<div id="signInButton">
+		<a class="link" href="/loginForm">Войти</a>
+	</div>
+	{% else %}
+	<div class="dropdown">
+		<button class="dropbtn">Добро подаловать, <br>{{firstName}}</button>
+		<div class="dropdown-content">
+			<a href="/account/orders">Ваши заказы</a>
+			<a href="/account/profile">Ваш профиль</a>
+			<hr>
+			<a href="/logout">Выйти</a>
+		</div>
+	</div>
+	{% endif %}
+	<div id="kart">
+		<a class="link" href="/cart">
+			<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+			Корзина {{noOfItems}}
+		</a>
+	</div>
+</div>
+
+<div class="display">
+	<a href="/account/profile/view">Просмотр профиля</a><br>
+	<a href="/account/profile/edit">Редактировать профиль</a><br>
+	<a href="/account/profile/changePassword">Изменить пароль</a>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Регистрация</title>
+<script type="text/javascript" src="{{ url_for('static', filename = 'js/validateForm.js') }}">
+</script>
+</head>
+<body>
+<form action="/register" method="POST" onsubmit="return validate()">
+    <p>Email: <input type="email" name="email"></p>
+
+    <P>Пароль: <input type="password" name="password" id="password" required></p>
+
+    <p>Повторите пароль: <input type="password" name="cpassword" id="cpassword"></p>
+
+    <p>Имя: <input type="text" name="firstName"></p>
+    <p>Фамилия: <input type="text" name="lastName"></p>
+    <p>Адрес: <input type="text" name="address1"></p>
+    <p>Address Line 2: <input type="text" name="address2"></p>
+    <p>Индекс: <input type="text" name="zipcode"></p>
+    <p>Город: <input type="text" name="city"></p>
+    <p>State: <input type="text" name="state"></p>
+    <p>Страна: <input type="text" name="country"></p>
+    <p>Номер телефона: <input type="text" name="phone"></p>
+
+    <p><input type="submit" value="Register"></p>
+
+    <a href="/loginForm">Вход</a>
+</form>
+</body>
+</html>
+
+
+
