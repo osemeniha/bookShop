@@ -23,7 +23,6 @@
 	<div class="dropdown">
 		<button class="dropbtn">Добро пожаловать, <br>{{firstName}}</button>
 		<div class="dropdown-content">
-			<a href="/account/orders">Ваши заказы</a>
 			<a href="/account/profile">Ваш профиль</a>
 			<hr>
 			<a href="/logout">Выйти</a>
@@ -31,25 +30,21 @@
 	</div>
 	{% endif %}
 	<div id="kart">
-		<a class="link" href="/cart">
+		<a class="link" href="/basket">
 		<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 		Корзина {{noOfItems}}
 		</a>
 	</div>
 </div>
-<div id="cartItems">
+<div id="basketItems">
 	<h2>Корзина</h2>
 	<div id="tableItems">
 		{% for row in products %}
 		<div>
 			<hr id="seperator">
-			<div id="itemImage">
-				<img src={{url_for('static', filename='uploads/'+row[3])}} id="image"/>
-			</div>
 			<div id="itemName">
-				<span id="itemNameTag">{{row[1]}}</span><br>
-				In stock<br>
-				<a href="/removeFromCart?productId={{row[0]}}">Удалить</a>
+				<span id="itemNameTag">{{row[1]}}</span>
+				<a href="/removeFromBasket?productId={{row[0]}}">Удалить</a>
 			</div>
 			<div id="itemPrice">
 				${{row[2]}}

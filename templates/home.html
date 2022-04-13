@@ -31,7 +31,7 @@
 	</div>
 	{% endif %}
 	<div id="kart">
-		<a class="link" href="/cart">
+		<a class="link" href="/basket">
 			<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 			Корзина {{noOfItems}}
 		</a>
@@ -54,16 +54,10 @@
 			<tr id="productName">
 				{% for row in data %}
 				<td>
-					{{row[1]}}
-				</td>
-				{% endfor %}
-			</tr>
-			<tr id="productImage">
-				{% for row in data %}
-				<td>
 					<a href="/productDescription?productId={{row[0]}}">
-						<img src={{ url_for('static', filename='uploads/' + row[4]) }} id="itemImage" />
+						{{row[1]}}
 					</a>
+
 				</td>
 				{% endfor %}
 			</tr>

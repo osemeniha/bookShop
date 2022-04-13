@@ -41,17 +41,16 @@
 <div class="display">
 	<h2>Редактирование профиля</h2>
 	<form action="/updateProfile" method="POST">
-		<p>Email:<input type="email" name="email" value={{profileData[1]}} readonly="readonly"></p>
-		<p>Имя:<input type="text" name="firstName" value={{profileData[2]}}></p>
-		<p>Фамилия: <input type="text" name="lastName" value={{profileData[3]}}></p>
-		<p>Страна: <input type="text" name="country" value={{profileData[4]}}></p>
-		<p>Город: <input type="text" name="city" value={{profileData[5]}}></p>
-		<p>Адрес: <input type="text" name="address1" value={{profileData[6]}}></p>
-		<p>Индекс: <input type="text" name="zipcode" value={{profileData[7]}}></p>
-		<p>Номер телефона: <input type="text" name="phone" value={{profileData[8]}}></p>
+		<p>Email: {{ profileData[1] }}</p>
+		<p>Имя: {{profileData[2]}}</p>
+		<p>Фамилия: {{profileData[3]}}</p>
+		<p>Страна: {{profileData[4]}}</p>
+		<p>Город: {{profileData[5]}}</p>
+		<p>Адрес: {{profileData[6]}}</p>
+		<p>Индекс: {{profileData[7]}}</p>
+		<p>Номер телефона: {{profileData[8]}}</p>
 		<input type="submit" value="Save">
 	</form>
 </div>
 </body>
 </html>
-

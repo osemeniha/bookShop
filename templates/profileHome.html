@@ -31,7 +31,7 @@
 	</div>
 	{% endif %}
 	<div id="kart">
-		<a class="link" href="/cart">
+		<a class="link" href="/basket">
 			<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 			Корзина {{noOfItems}}
 		</a>
@@ -39,7 +39,14 @@
 </div>
 
 <div class="display">
-	<a href="/account/profile/view">Просмотр профиля</a><br>
+	<p>Email: {{ profileData[1] }}</p>
+	<p>Имя: {{profileData[2]}}</p>
+	<p>Фамилия: {{profileData[3]}}</p>
+	<p>Страна: {{profileData[4]}}</p>
+	<p>Город: {{profileData[5]}}</p>
+	<p>Адрес: {{profileData[6]}}</p>
+	<p>Индекс: {{profileData[7]}}</p>
+	<p>Номер телефона: {{profileData[8]}}</p>
 	<a href="/account/profile/edit">Редактировать профиль</a><br>
 	<a href="/account/profile/changePassword">Изменить пароль</a>
 </div>

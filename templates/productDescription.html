@@ -31,7 +31,7 @@
 	</div>
 	{% endif %}
 	<div id="kart">
-		<a class="link" href="/cart">
+		<a class="link" href="/basket">
 			<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 			Корзина {{noOfItems}}
 		</a>
@@ -41,12 +41,8 @@
 	<div id="productName">
 		<h1>{{data[1]}}</h1>
 	</div>
-	<div>
-		<img src={{url_for('static', filename='uploads/'+data[4]) }} id="productImage"/>
-	</div>
 
 	<div id="productDescription">
-		<h2>Описание</h2>
 		<table id="descriptionTable">
 			<tr>
 				<td>Название</td>
@@ -56,16 +52,12 @@
 				<td>Цена</td>
 				<td>${{data[2]}}</td>
 			</tr>
-			<tr>
-				<td>Stock</td>
-				<td>{{data[5]}}</td>
-			</tr>
 		</table>
 		<h2>Описание</h2>
 		<p>{{data[3]}}</p>
 	</div>
-	<div id="addToCart">
-		<a href="/addToCart?productId={{request.args.get('productId')}}">Добавить в корзину</a>
+	<div id="addToBasket">
+		<a href="/addToBasket?productId={{request.args.get('productId')}}">Добавить в корзину</a>
 	</div>
 </div>
 </body>

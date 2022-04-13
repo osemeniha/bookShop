@@ -10,12 +10,10 @@ conn.execute('''CREATE TABLE users
 		email TEXT,
 		firstName TEXT,
 		lastName TEXT,
-		address1 TEXT,
-		address2 TEXT,
-		zipcode TEXT,
-		city TEXT,
-		state TEXT,
 		country TEXT, 
+		city TEXT,
+		address TEXT,
+		zipcode TEXT,
 		phone TEXT
 		)''')
 
@@ -24,13 +22,12 @@ conn.execute('''CREATE TABLE products
 		name TEXT,
 		price REAL,
 		description TEXT,
-		image TEXT,
 		stock INTEGER,
 		categoryId INTEGER,
 		FOREIGN KEY(categoryId) REFERENCES categories(categoryId)
 		)''')
 
-conn.execute('''CREATE TABLE kart
+conn.execute('''CREATE TABLE basket
 		(userId INTEGER,
 		productId INTEGER,
 		FOREIGN KEY(userId) REFERENCES users(userId),
@@ -42,7 +39,7 @@ conn.execute('''CREATE TABLE categories
 		name TEXT
 		)''')
 
-conn.execute('''CREATE TABLE Order
+conn.execute('''CREATE TABLE Orders
 		(userId INTEGER,
 		productId INTEGER,
 		FOREIGN KEY(userId) REFERENCES users(userId),
