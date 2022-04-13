@@ -192,8 +192,34 @@ def productDescription():
         cur = conn.cursor()
         cur.execute('SELECT productId, name, price, description, stock FROM products WHERE productId = ' + productId)
         productData = cur.fetchone()
+        cur.execute('SELECT comments.body, comments.username FROM comments, products WHERE products.productId = comments.productId AND comments.productID = ' + str(productData[0]))
+        comments = cur.fetchone()
     conn.close()
-    return render_template("productDescription.html", data=productData, loggedIn = loggedIn, firstName = firstName, noOfItems = noOfItems)
+    return render_template("productDescription.html", data=productData, comments=comments, loggedIn = loggedIn, firstName = firstName, noOfItems = noOfItems)
+
+@app.route("/addComment", methods=['POST'])  # сохранение отзыва
+def addComment():
+    if 'email' not in session:
+        return redirect(url_for('loginForm'))
+    else:
+        body = request.form['comment']
+        productId = int(request.args.get('productId'))
+        with sqlite3.connect('database.db') as conn:
+            cur = conn.cursor()
+            cur.execute(
+                'SELECT productId, name, price, description, stock FROM products WHERE productId = ' + productId)
+            productId = cur.fetchone()[0]
+            cur.execute("SELECT userId FROM users WHERE email = '" + session['email'] + "'")
+            userId = cur.fetchone()[0]
+            try:
+                cur.execute("INSERT INTO comments (body, username, productId) VALUES (?, ?, ?)", (body, userId, productId))
+                conn.commit()
+                msg = "Отзыв успешно добавлен"
+            except:
+                conn.rollback()
+                msg = "Error occured"
+        conn.close()
+        return redirect(url_for('root'))
 
 @app.route("/addToBasket")
 def addToBasket():

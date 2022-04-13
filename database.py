@@ -46,5 +46,12 @@ conn.execute('''CREATE TABLE Orders
 		FOREIGN KEY(productId) REFERENCES products(productId)
 		)''')
 
+conn.execute('''CREATE TABLE comments
+        (body TEXT,
+        username TEXT,
+        productId INTEGER,
+        FOREIGN KEY(productId) REFERENCES products(productId)
+        )''')
+
 conn.close()
 

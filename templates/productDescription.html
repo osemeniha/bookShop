@@ -21,7 +21,7 @@
 	</div>
 	{% else %}
 	<div class="dropdown">
-		<button class="dropbtn">Добро подаловать, <br>{{firstName}}</button>
+		<button class="dropbtn">Добро пожаловать, <br>{{firstName}}</button>
 		<div class="dropdown-content">
 			<a href="/account/orders">Ваши заказы</a>
 			<a href="/account/profile">Ваш профиль</a>
@@ -30,7 +30,7 @@
 		</div>
 	</div>
 	{% endif %}
-	<div id="kart">
+	<div id="basket">
 		<a class="link" href="/basket">
 			<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 			Корзина {{noOfItems}}
@@ -59,6 +59,15 @@
 	<div id="addToBasket">
 		<a href="/addToBasket?productId={{request.args.get('productId')}}">Добавить в корзину</a>
 	</div>
+	{% if loggedIn %}
+<form action='addComment' method='POST' class='form' align='left'>
+<p><textarea rows='4' cols='50' placeholder='Ваш отзыв...' name='comment'></textarea></p>
+<p><input type='submit' value='Отправить'></p>
+</form>
+{% endif %}
+{% for i in comments %}
+<p><h4 class="commenter">{{ comments[2] }}</h4><div class="comment">{{ comments[1] }}</div></p>
+{% endfor %}
 </div>
 </body>
 </html>
