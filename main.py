@@ -193,12 +193,13 @@ def productDescription():
         cur.execute('SELECT productId, name, price, description, stock FROM products WHERE productId = ' + productId)
         productData = cur.fetchone()
         cur.execute('SELECT comments.body, comments.username FROM comments, products WHERE products.productId = comments.productId AND comments.productID = ' + str(productData[0]))
-        comments = cur.fetchone()
+        comments = cur.fetchall()
     conn.close()
     return render_template("productDescription.html", data=productData, comments=comments, loggedIn = loggedIn, firstName = firstName, noOfItems = noOfItems)
 
-@app.route("/addComment", methods=['POST'])  # сохранение отзыва
+@app.route("/productDescription?productId=<int:productId>/addComent", methods=['GET', 'POST'])  # сохранение отзыва
 def addComment():
+    loggedIn, firstName, noOfItems = getLoginDetails()
     if 'email' not in session:
         return redirect(url_for('loginForm'))
     else:
@@ -219,7 +220,7 @@ def addComment():
                 conn.rollback()
                 msg = "Error occured"
         conn.close()
-        return redirect(url_for('root'))
+        return redirect(url_for('/productDescription'))
 
 @app.route("/addToBasket")
 def addToBasket():
