@@ -190,15 +190,11 @@ def addComment():
             productId = cur.fetchone()[0]
             cur.execute("SELECT userId FROM users WHERE email = '" + session['email'] + "'")
             userId = cur.fetchone()[0]
-            try:
-                cur.execute("INSERT INTO comments (body, username, productId) VALUES (?, ?, ?)", (body, userId, productId))
-                conn.commit()
-                msg = "Отзыв успешно добавлен"
-            except:
-                conn.rollback()
-                msg = "Error occured"
+            cur.execute("INSERT INTO comments (body, username, productId) VALUES (?, ?, ?)", (body, userId, productId))
+            conn.commit()
         conn.close()
         return redirect(url_for('/productDescription'))
+
 
 @app.route("/addToBasket")
 def addToBasket():
@@ -247,15 +243,13 @@ def removeFromBasket():
         cur = conn.cursor()
         cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
         userId = cur.fetchone()[0]
-        try:
-            cur.execute("DELETE FROM basket WHERE userId = " + str(userId) + " AND productId = " + str(productId))
-            conn.commit()
-            msg = "removed successfully"
-        except:
-            conn.rollback()
-            msg = "error occured"
+        cur.execute("SELECT id, userId, productId FROM basket WHERE userId = " + str(userId) + " AND  productId = " + str(productId))
+        product = cur.fetchone()[0]
+        cur.execute("DELETE FROM basket WHERE id = " + str(product))
+        conn.commit()
     conn.close()
     return redirect(url_for('root'))
+
 
 @app.route("/logout")
 def logout():

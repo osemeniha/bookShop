@@ -28,7 +28,8 @@ conn.execute('''CREATE TABLE products
 		)''')
 
 conn.execute('''CREATE TABLE basket
-		(userId INTEGER,
+		(id INTEGER PRIMARY KEY,
+		userId INTEGER,
 		productId INTEGER,
 		FOREIGN KEY(userId) REFERENCES users(userId),
 		FOREIGN KEY(productId) REFERENCES products(productId)

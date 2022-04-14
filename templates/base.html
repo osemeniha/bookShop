@@ -28,13 +28,14 @@
 			<a href="/logout">Выйти</a>
 		</div>
 	</div>
-	{% endif %}
 	<div id="kart">
 		<a class="link" href="/basket">
 		<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
 		Корзина {{noOfItems}}
 		</a>
 	</div>
+	{% endif %}
+
 </div>
 {% block body %}{% endblock %}
 </body>
