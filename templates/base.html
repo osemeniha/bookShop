@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href={{url_for('static', filename='css/cart.css')}} />
+<link rel="stylesheet" href={{url_for('static', filename='css/topStyle.css') }} />
+{% block title %}{% endblock %}
+</head>
+<body>
+<div id="title">
+	<a href="/">
+	<img id="logo" src= {{ url_for('static', filename='images/logo.png') }} />
+	</a>
+	<form action="/search" method='POST' class='form' align='left'>
+		<input id="searchBox" type="text" name="search">
+		<input id="searchButton" type="submit" value="Поиск">
+	</form>
+
+	{% if not loggedIn %}
+		<div id="signInButton">
+			<a class="link" href="/loginForm">Войти</a>
+		</div>
+	{% else %}
+	<div class="dropdown">
+		<button class="dropbtn">Добро пожаловать, <br>{{firstName}}</button>
+		<div class="dropdown-content">
+			<a href="/account/profile">Ваш профиль</a>
+			<hr>
+			<a href="/logout">Выйти</a>
+		</div>
+	</div>
+	{% endif %}
+	<div id="kart">
+		<a class="link" href="/basket">
+		<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+		Корзина {{noOfItems}}
+		</a>
+	</div>
+</div>
+{% block body %}{% endblock %}
+</body>
+</html>

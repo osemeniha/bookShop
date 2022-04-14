@@ -1,21 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}
-<title>Главная</title>
+<title>Поиск</title>
 {% endblock %}
 {% block body %}
-<div class="display">
-	<div class="displayCategory">
 
-		<h2>Категории: </h2>
-		<ul>
-			{% for row in categoryData %}
-			<li><a href="/displayCategory?categoryId={{row[0]}}">{{row[1]}}</a></li>
-			{% endfor %}
-		</ul>
-	</div>
-	<div>
-		<h2>Товары</h2>
-		{% for data in itemData%}
+<div>
+		<h2>Результаты поиска</h2>
+		{% for data in searchData%}
 		<table>
 			<tr id="productName">
 				{% for row in data %}
@@ -37,6 +28,5 @@
 		</table>
 		{% endfor %}
 	</div>
-</div>
 
 {% endblock %}
