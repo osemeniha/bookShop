@@ -20,8 +20,12 @@ def getLoginDetails():
             loggedIn = True
             cur.execute("SELECT userId, firstName FROM users WHERE email = '" + session['email'] + "'")
             userId, firstName = cur.fetchone()
-            cur.execute("SELECT count(productId) FROM basket WHERE userId = " + str(userId))
-            noOfItems = cur.fetchone()[0]
+            cur.execute("SELECT sum(count) FROM basket WHERE userId = " + str(userId) + " AND statusId = 1")
+            items = cur.fetchone()[0]
+            if items is None:
+                noOfItems = 0
+            else:
+                noOfItems = items
     conn.close()
     return (loggedIn, firstName, noOfItems)
 
@@ -30,7 +34,7 @@ def root():
     loggedIn, firstName, noOfItems = getLoginDetails()
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        cur.execute('SELECT productId, name, price, description, stock FROM products')
+        cur.execute('SELECT productId, name, price, description FROM products')
         itemData = cur.fetchall()
         cur.execute('SELECT categoryId, name FROM categories')
         categoryData = cur.fetchall()
@@ -56,7 +60,7 @@ def search():
     search = request.form['search']
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        cur.execute("SELECT productId, name, price, description, stock FROM products WHERE name like '%'||?||'%'", (search,))
+        cur.execute("SELECT productId, name, price, description FROM products WHERE name like '%'||?||'%'", (search,))
         searchData = cur.fetchall()
     conn.close()
     searchData = parse(searchData)
@@ -75,6 +79,34 @@ def profileHome():
         profileData = cur.fetchone()
     conn.close()
     return render_template("profileHome.html", profileData=profileData, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+
+@app.route("/orders")
+def orders():
+    if 'email' not in session:
+        return redirect(url_for('root'))
+    loggedIn, firstName, noOfItems = getLoginDetails()
+    with sqlite3.connect('database.db') as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT userId FROM users WHERE email = '" + session['email'] + "'")
+        userId = cur.fetchone()[0]
+        cur.execute("SELECT orderId FROM orders WHERE userId = " + str(userId))
+        orders = cur.fetchall()
+    conn.close()
+    return render_template("orders.html", orders=orders, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+
+@app.route("/order")
+def order():
+    loggedIn, firstName, noOfItems = getLoginDetails()
+    orderId = request.args.get('orderId')
+    with sqlite3.connect('database.db') as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT products.productId, products.name, products.price, basket.count FROM basket LEFT JOIN products ON products.productId = basket.productId WHERE basket.orderId = " + str(orderId)  + " AND basket.statusId = 2")
+        products = cur.fetchall()
+        totalPrice = 0.0
+        for row in products:
+            totalPrice += row[2] * row[3]
+    conn.close()
+    return render_template("order.html", products = products, totalPrice=totalPrice, loggedIn = loggedIn, firstName = firstName, noOfItems = noOfItems)
 
 @app.route("/account/profile/edit")
 def editProfile():
@@ -168,14 +200,14 @@ def productDescription():
     productId = request.args.get('productId')
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        cur.execute('SELECT productId, name, price, description, stock FROM products WHERE productId = ' + productId)
+        cur.execute('SELECT productId, name, price, description FROM products WHERE productId = ' + productId)
         productData = cur.fetchone()
-        cur.execute('SELECT comments.body, comments.username FROM comments, products WHERE products.productId = comments.productId AND comments.productID = ' + str(productData[0]))
+        cur.execute('SELECT comments.body FROM comments, products WHERE products.productId = comments.productId AND comments.productID = ' + str(productData[0]))
         comments = cur.fetchall()
     conn.close()
     return render_template("productDescription.html", data=productData, comments=comments, loggedIn = loggedIn, firstName = firstName, noOfItems = noOfItems)
 
-@app.route("/productDescription?productId=<int:productId>/addComent", methods=['GET', 'POST'])  # сохранение отзыва
+@app.route("/productDescription/addComent", methods=['GET', 'POST'])  # сохранение отзыва
 def addComment():
     loggedIn, firstName, noOfItems = getLoginDetails()
     if 'email' not in session:
@@ -190,10 +222,10 @@ def addComment():
             productId = cur.fetchone()[0]
             cur.execute("SELECT userId FROM users WHERE email = '" + session['email'] + "'")
             userId = cur.fetchone()[0]
-            cur.execute("INSERT INTO comments (body, username, productId) VALUES (?, ?, ?)", (body, userId, productId))
+            cur.execute("INSERT INTO comments (body, userId, productId) VALUES (?, ?, ?)", (body, userId, productId))
             conn.commit()
         conn.close()
-        return redirect(url_for('/productDescription'))
+        return redirect(url_for('root'))
 
 
 @app.route("/addToBasket")
@@ -206,13 +238,19 @@ def addToBasket():
             cur = conn.cursor()
             cur.execute("SELECT userId FROM users WHERE email = '" + session['email'] + "'")
             userId = cur.fetchone()[0]
-            try:
-                cur.execute("INSERT INTO basket (userId, productId) VALUES (?, ?)", (userId, productId))
+            cur.execute("SELECT count, statusId FROM basket WHERE userId = " + str(userId) + " AND statusID = 1 AND productId = " + str(productId))
+            info = cur.fetchone()
+            if info is not None:
+                count = info[0]
+                status = info[1]
+                if status == 1:
+                    cur.execute(
+                        "UPDATE basket SET count = ? WHERE userId = ? AND basket.statusID = 1 AND productId = " + str(productId), (count + 1, userId))
+                    conn.commit()
+            else:
+                cur.execute("INSERT INTO basket (userId, productId, count, statusId) VALUES (?, ?, ?, ?)",
+                            (userId, productId, 1, 1))
                 conn.commit()
-                msg = "Товар успешно добавлен"
-            except:
-                conn.rollback()
-                msg = "Error occured"
         conn.close()
         return redirect(url_for('root'))
 
@@ -226,15 +264,16 @@ def basket():
         cur = conn.cursor()
         cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
         userId = cur.fetchone()[0]
-        cur.execute("SELECT products.productId, products.name, products.price FROM products, basket WHERE products.productId = basket.productId AND basket.userId = " + str(userId))
+        cur.execute("SELECT products.productId, products.name, products.price, basket.count FROM basket LEFT JOIN products ON products.productId = basket.productId WHERE basket.userId = " + str(userId)  + " AND basket.statusId = 1")
         products = cur.fetchall()
-    totalPrice = 0
+    totalPrice = 0.0
     for row in products:
-        totalPrice += row[2]
-    return render_template("basket.html", products = products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+        totalPrice += row[2]*row[3]
+    return render_template("basket.html", products=products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
-@app.route("/removeFromBasket")
-def removeFromBasket():
+
+@app.route("/remove")
+def remove():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
     email = session['email']
@@ -243,12 +282,56 @@ def removeFromBasket():
         cur = conn.cursor()
         cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
         userId = cur.fetchone()[0]
-        cur.execute("SELECT id, userId, productId FROM basket WHERE userId = " + str(userId) + " AND  productId = " + str(productId))
-        product = cur.fetchone()[0]
-        cur.execute("DELETE FROM basket WHERE id = " + str(product))
+        cur.execute("SELECT id, userId, productId, count, statusId FROM basket WHERE userId = " + str(userId) + " AND  productId = " + str(productId) + " AND statusId = 1")
+        info = cur.fetchone()
+        product = info[0]
+        count = info[3]
+        if count == 1:
+            cur.execute("DELETE FROM basket WHERE id = " + str(product))
+            conn.commit()
+        else:
+            cur.execute(
+                "UPDATE basket SET count = ? WHERE userId = ? AND basket.statusID = 1 AND basket.productId = ?", (count - 1, userId, productId))
+            conn.commit()
+    conn.close()
+    return redirect(url_for('basket'))
+
+@app.route("/add")
+def add():
+    if 'email' not in session:
+        return redirect(url_for('loginForm'))
+    email = session['email']
+    productId = int(request.args.get('productId'))
+    with sqlite3.connect('database.db') as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
+        userId = cur.fetchone()[0]
+        cur.execute("SELECT count FROM basket WHERE userId = " + str(userId) + " AND  productId = " + str(productId) + " AND statusId = 1")
+        info = cur.fetchone()
+        count = info[0]
+        cur.execute(
+            "UPDATE basket SET count = ? WHERE userId = ? AND basket.statusID = 1 AND basket.productId = ?", (count + 1, userId, productId))
         conn.commit()
     conn.close()
-    return redirect(url_for('root'))
+    return redirect(url_for('basket'))
+
+#
+# @app.route("/removeFromBasket")
+# def removeFromBasket():
+#     if 'email' not in session:
+#         return redirect(url_for('loginForm'))
+#     email = session['email']
+#     productId = int(request.args.get('productId'))
+#     with sqlite3.connect('database.db') as conn:
+#         cur = conn.cursor()
+#         cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
+#         userId = cur.fetchone()[0]
+#         cur.execute("SELECT id, userId, productId FROM basket WHERE userId = " + str(userId) + " AND  productId = " + str(productId))
+#         product = cur.fetchone()[0]
+#         cur.execute("DELETE FROM basket WHERE id = " + str(product))
+#         conn.commit()
+#     conn.close()
+#     return redirect(url_for('root'))
 
 
 @app.route("/logout")
@@ -279,19 +362,18 @@ def payment():
         cur = conn.cursor()
         cur.execute("SELECT userId FROM users WHERE email = '" + email + "'")
         userId = cur.fetchone()[0]
-        cur.execute("SELECT products.productId, products.name, products.price FROM products, basket WHERE products.productId = basket.productId AND basket.userId = " + str(userId))
+        cur.execute('INSERT INTO orders(userId) VALUES (' + str(userId) + ')')
+        conn.commit()
+        cur.execute("SELECT MAX(orderId) FROM orders WHERE userId = " + str(userId))
+        orderId = cur.fetchone()[0]
+        cur.execute("UPDATE basket SET statusId = 2, orderId = ? WHERE userId = ? AND orderId = 0", (str(orderId), str(userId)))
+        conn.commit()
+        cur.execute("SELECT products.productId, products.name, products.price, basket.count FROM basket LEFT JOIN products ON products.productId = basket.productId WHERE basket.orderId = " + str(orderId)  + " AND basket.statusId = 2")
         products = cur.fetchall()
-    totalPrice = 0
+    totalPrice = 0.0
     for row in products:
-        totalPrice += row[2]
-        print(row)
-        cur.execute("INSERT INTO Orders (userId, productId) VALUES (?, ?)", (userId, row[0]))
-    cur.execute("DELETE FROM basket WHERE userId = " + str(userId))
-    conn.commit()
-
-        
-
-    return render_template("checkout.html", products = products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+        totalPrice += row[2]*row[3]
+    return render_template("checkout.html", products=products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register():

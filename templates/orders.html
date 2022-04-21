@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}
+<title>Ваши заказы</title>
+{% endblock %}
+{% block body %}
+<div id="basketItems">
+	<h2>Ваши заказы</h2>
+	<div>
+		<h2>Товары</h2>
+		{% for row in orders%}
+		<div>
+			<hr id="seperator">
+			<div id="orderId">
+				<a href="/order?orderId={{row[0]}}">Заказ № {{row[0]}}</a>
+				<!--<a href="/removeFromBasket?productId={{row[0]}}">Удалить</a>-->
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
+{% endblock %}

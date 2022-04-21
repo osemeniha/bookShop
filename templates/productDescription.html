@@ -26,7 +26,7 @@
 		<a href="/addToBasket?productId={{request.args.get('productId')}}">Добавить в корзину</a>
 	</div>
 	{% if loggedIn %}
-<form action="/productDescription?productId={{request.args.get('productId')}}/addComent" method='POST' class='form' align='left'>
+<form action="/productDescription/addComment?productId={{request.args.get('productId')}}" method='POST' class='form' align='left'>
 <p><textarea rows='4' cols='50' placeholder='Ваш отзыв...' name='comment'></textarea></p>
 <p><input type='submit' value='Отправить'></p>
 </form>

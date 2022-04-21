@@ -1,19 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}
-<title>Корзина</title>
+<title>Заказ № {{request.args.get('orderId')}}</title>
 {% endblock %}
 {% block body %}
 <div id="basketItems">
-	<h2>Корзина</h2>
+	<h2>Заказ № {{request.args.get('orderId')}}</h2>
 	<div id="tableItems">
 		{% for row in products %}
 		<div>
 			<hr id="seperator">
 			<div id="itemName">
 				<span id="itemNameTag">{{row[1]}}</span>
-				<a href="/remove?productId={{row[0]}}">Минус</a>
-				<a href="/add?productId={{row[0]}}">Еще добавить</a>
-				<!--<a href="/removeFromBasket?productId={{row[0]}}">Удалить</a>-->
 			</div>
 			<div id="itemPrice">
 				${{row[2]}}
@@ -29,6 +26,4 @@
 		</div>
 	</div>
 </div>
-<a href="/checkout">Оформить заказ</a>
-
 {% endblock %}

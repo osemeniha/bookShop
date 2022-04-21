@@ -22,17 +22,33 @@ conn.execute('''CREATE TABLE products
 		name TEXT,
 		price REAL,
 		description TEXT,
-		stock INTEGER,
 		categoryId INTEGER,
 		FOREIGN KEY(categoryId) REFERENCES categories(categoryId)
+		)''')
+
+conn.execute('''CREATE TABLE orders
+		(orderId INTEGER PRIMARY KEY,
+		userId INTEGER, 
+		FOREIGN KEY(userId) REFERENCES users(userId)
 		)''')
 
 conn.execute('''CREATE TABLE basket
 		(id INTEGER PRIMARY KEY,
 		userId INTEGER,
 		productId INTEGER,
+		count INTEGER DEFAULT 0,
+		statusId INTEGER,
+		orderId INTEGER DEFAULT 0,
 		FOREIGN KEY(userId) REFERENCES users(userId),
-		FOREIGN KEY(productId) REFERENCES products(productId)
+		FOREIGN KEY(productId) REFERENCES products(productId),
+		FOREIGN KEY(orderId) REFERENCES orders(orderId)		
+		)''')
+
+
+
+conn.execute('''CREATE TABLE status
+		(statusId INTEGER PRIMARY KEY,
+		name TEXT
 		)''')
 
 conn.execute('''CREATE TABLE categories
@@ -40,19 +56,19 @@ conn.execute('''CREATE TABLE categories
 		name TEXT
 		)''')
 
-conn.execute('''CREATE TABLE Orders
-		(userId INTEGER,
-		productId INTEGER,
-		FOREIGN KEY(userId) REFERENCES users(userId),
-		FOREIGN KEY(productId) REFERENCES products(productId)
-		)''')
-
 conn.execute('''CREATE TABLE comments
         (body TEXT,
-        username TEXT,
+        userId TEXT,
         productId INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(userId),
         FOREIGN KEY(productId) REFERENCES products(productId)
         )''')
 
 conn.close()
 
+# conn.execute('''CREATE TABLE orders
+# 		(userId INTEGER,
+# 		productId INTEGER,
+# 		FOREIGN KEY(userId) REFERENCES users(userId),
+# 		FOREIGN KEY(productId) REFERENCES products(productId)
+# 		)''')
