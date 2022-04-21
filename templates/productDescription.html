@@ -31,9 +31,9 @@
 <p><input type='submit' value='Отправить'></p>
 </form>
 {% endif %}
-
-<h4 class="commenter">{{ comments[0] }}</h4><h4 class="commenter">{{ comments[1] }}</h4>
-
+{% for row in comments %}
+<h4 class="commenter">{{ row }}</h4>
+{% endfor %}
 </div>
 
 {% endblock %}
